@@ -1,5 +1,6 @@
 class QuoteShortsApp {
   constructor() {
+    // Quotes data
     this.quotes = [
       { text: "An Unfiltered Guide to Winning at Work", author: "Poornima Rathee", book: "Nobody Told Me That!" },
       { text: "Strategies for Resilience and Growth in a Changing World", author: "Bob Sehmi", book: "Future Proof Your Business" },
@@ -12,6 +13,8 @@ class QuoteShortsApp {
       { text: "Fintellectual Minds Exploring FinTech Through Gen AI Lens", author: "Vivek Dubey", book: "The Journey of FinTech" },
       { text: "Curriculum aligned and activity based one", author: "DR. K. Padmanaban", book: "Mastering Accountancy" }
     ];
+
+    // State variables
     this.currentIndex = 0;
     this.isAutoplay = false;
     this.autoplayInterval = null;
@@ -19,6 +22,7 @@ class QuoteShortsApp {
     this.likedQuotes = new Set();
     this.isTransitioning = false;
 
+    // Initialize
     this.initElements();
     this.generateSlides();
     this.initEventListeners();
@@ -26,7 +30,7 @@ class QuoteShortsApp {
     this.updateActiveSlide();
   }
 
-  // -------- Elements --------
+  // DOM references
   initElements() {
     this.slidesWrapper = document.getElementById('slidesWrapper');
     this.progressBar = document.getElementById('progressBar');
@@ -36,9 +40,11 @@ class QuoteShortsApp {
     this.shareBtn = document.getElementById('shareBtn');
     this.copyBtn = document.getElementById('copyBtn');
     this.shareLink = document.getElementById('shareLink');
+    this.upArrow = document.getElementById('upArrow');
+    this.downArrow = document.getElementById('downArrow');
   }
 
-  // -------- Slides --------
+  // Generate slide elements
   generateSlides() {
     this.quotes.forEach((quote, index) => {
       const slide = document.createElement('div');
@@ -46,11 +52,73 @@ class QuoteShortsApp {
       slide.innerHTML = `
         <div class="quote-text">${quote.text}</div>
         <div class="quote-author">${quote.author}</div>
-        <div class="quote-book">${quote.book}</div>`;
+        <div class="quote-book">${quote.book}</div>
+      `;
       this.slidesWrapper.appendChild(slide);
     });
   }
 
+  // Event listeners
+  initEventListeners() {
+    this.autoplayBtn.addEventListener('click', () => this.toggleAutoplay());
+    this.themeToggle.addEventListener('click', () => this.toggleTheme());
+    this.likeBtn.addEventListener('click', () => this.toggleLike());
+    this.shareBtn.addEventListener('click', () => this.prepareShareLink());
+    this.copyBtn.addEventListener('click', () => this.copyShareLink());
+
+    // Arrow navigation
+    this.upArrow.addEventListener('click', () => this.prevSlide());
+    this.downArrow.addEventListener('click', () => this.nextSlide());
+
+    // Touch swipe
+    let startY = 0, startX = 0;
+    this.slidesWrapper.addEventListener('touchstart', e => {
+      startY = e.touches[0].clientY;
+      startX = e.touches[0].clientX;
+    });
+
+    this.slidesWrapper.addEventListener('touchend', e => {
+      if (this.isTransitioning) return;
+      const endY = e.changedTouches[0].clientY;
+      const endX = e.changedTouches[0].clientX;
+      const diffY = startY - endY;
+      const diffX = Math.abs(startX - endX);
+      if (Math.abs(diffY) > diffX && Math.abs(diffY) > 50) {
+        diffY > 0 ? this.nextSlide() : this.prevSlide();
+      }
+    });
+
+    // Mouse wheel
+    this.slidesWrapper.addEventListener('wheel', e => {
+      if (this.isTransitioning) return;
+      e.preventDefault();
+      e.deltaY > 0 ? this.nextSlide() : this.prevSlide();
+    });
+
+    // Keyboard controls
+    document.addEventListener('keydown', e => {
+      if (document.querySelector('.modal.show')) return;
+      switch (e.code) {
+        case 'ArrowDown':
+        case 'Space':
+          e.preventDefault();
+          this.nextSlide();
+          break;
+        case 'ArrowUp':
+          e.preventDefault();
+          this.prevSlide();
+          break;
+        case 'KeyL':
+          this.toggleLike();
+          break;
+        case 'KeyS':
+          this.shareBtn.click();
+          break;
+      }
+    });
+  }
+
+  // Update slide states
   updateActiveSlide() {
     const slides = this.slidesWrapper.querySelectorAll('.slide');
     slides.forEach((slide, index) => {
@@ -69,12 +137,13 @@ class QuoteShortsApp {
     }
   }
 
+  // Slide navigation
   nextSlide() {
     if (this.isTransitioning) return;
     this.isTransitioning = true;
     this.currentIndex = (this.currentIndex + 1) % this.quotes.length;
     this.updateActiveSlide();
-    setTimeout(() => (this.isTransitioning = false), 600);
+    setTimeout(() => this.isTransitioning = false, 600);
   }
 
   prevSlide() {
@@ -82,13 +151,12 @@ class QuoteShortsApp {
     this.isTransitioning = true;
     this.currentIndex = (this.currentIndex - 1 + this.quotes.length) % this.quotes.length;
     this.updateActiveSlide();
-    setTimeout(() => (this.isTransitioning = false), 600);
+    setTimeout(() => this.isTransitioning = false, 600);
   }
 
-  // -------- Autoplay --------
+  // Autoplay
   toggleAutoplay() {
-    if (this.isAutoplay) this.stopAutoplay();
-    else this.startAutoplay();
+    this.isAutoplay ? this.stopAutoplay() : this.startAutoplay();
   }
 
   startAutoplay() {
@@ -117,7 +185,7 @@ class QuoteShortsApp {
     this.progressBar.style.width = '0%';
   }
 
-  // -------- Theme --------
+  // Theme toggle
   toggleTheme() {
     const theme = document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
     document.body.setAttribute('data-theme', theme);
@@ -125,94 +193,31 @@ class QuoteShortsApp {
   }
 
   initializeTheme() {
-    const saved = localStorage.getItem('theme');
-    if (saved) document.body.setAttribute('data-theme', saved);
+    const savedTheme = localStorage.getItem('theme');
+    if (savedTheme) document.body.setAttribute('data-theme', savedTheme);
   }
 
-  // -------- Likes --------
+  // Like functionality
   toggleLike() {
-    if (this.likedQuotes.has(this.currentIndex)) {
-      this.likedQuotes.delete(this.currentIndex);
-    } else {
-      this.likedQuotes.add(this.currentIndex);
-    }
+    if (this.likedQuotes.has(this.currentIndex)) this.likedQuotes.delete(this.currentIndex);
+    else this.likedQuotes.add(this.currentIndex);
     this.updateActiveSlide();
   }
 
-  // -------- Share --------
+  // Share functionality
   prepareShareLink() {
     const shareURL = `${window.location.origin}${window.location.pathname}#quote-${this.currentIndex}`;
     this.shareLink.textContent = shareURL;
   }
 
   copyShareLink() {
-    const text = this.shareLink.textContent;
-    navigator.clipboard.writeText(text).then(() => {
-      const btn = this.copyBtn;
-      const originalText = btn.innerHTML;
-      btn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
-      setTimeout(() => {
-        btn.innerHTML = originalText;
-      }, 2000);
-    });
-  }
-
-  // -------- Events --------
-  initEventListeners() {
-    this.autoplayBtn.addEventListener('click', () => this.toggleAutoplay());
-    this.themeToggle.addEventListener('click', () => this.toggleTheme());
-    this.likeBtn.addEventListener('click', () => this.toggleLike());
-    this.shareBtn.addEventListener('click', () => this.prepareShareLink());
-    this.copyBtn.addEventListener('click', () => this.copyShareLink());
-
-    // Touch swipe
-    let startY = 0, startX = 0;
-    this.slidesWrapper.addEventListener('touchstart', e => {
-      startY = e.touches[0].clientY;
-      startX = e.touches[0].clientX;
-    });
-    this.slidesWrapper.addEventListener('touchend', e => {
-      if (this.isTransitioning) return;
-      const endY = e.changedTouches[0].clientY;
-      const endX = e.changedTouches[0].clientX;
-      const diffY = startY - endY;
-      const diffX = Math.abs(startX - endX);
-
-      if (Math.abs(diffY) > diffX && Math.abs(diffY) > 50) {
-        diffY > 0 ? this.nextSlide() : this.prevSlide();
-      }
-    });
-
-    // Mouse wheel
-    this.slidesWrapper.addEventListener('wheel', e => {
-      if (this.isTransitioning) return;
-      e.preventDefault();
-      e.deltaY > 0 ? this.nextSlide() : this.prevSlide();
-    });
-
-    // Keyboard
-    document.addEventListener('keydown', e => {
-      if (document.querySelector('.modal.show')) return;
-      switch (e.code) {
-        case 'ArrowDown':
-        case 'Space':
-          e.preventDefault();
-          this.nextSlide();
-          break;
-        case 'ArrowUp':
-          e.preventDefault();
-          this.prevSlide();
-          break;
-        case 'KeyL':
-          this.toggleLike();
-          break;
-        case 'KeyS':
-          this.shareBtn.click();
-          break;
-      }
+    navigator.clipboard.writeText(this.shareLink.textContent).then(() => {
+      const originalText = this.copyBtn.innerHTML;
+      this.copyBtn.innerHTML = '<i class="fas fa-check me-1"></i>Copied!';
+      setTimeout(() => this.copyBtn.innerHTML = originalText, 2000);
     });
   }
 }
 
-// -------- Init App --------
+// Initialize app
 document.addEventListener('DOMContentLoaded', () => new QuoteShortsApp());
