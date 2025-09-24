@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Book Quote Shorts - Daily Inspiration" />
+  <meta property="og:description" content="Discover timeless book quotes that inspire, motivate, and spark reflection. Swipe through daily literary wisdom." />
+  <title>Book Quote Shorts</title>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/x-icon" href="assets/img/book_icon.ico">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body data-theme="dark">
+
+  <header class="header">
+    <a href="#" class="logo"><i class="fas fa-quote-left"></i> Book Quote</a>
+    <div class="header-actions">
+      <button class="header-btn notification-badge"><i class="far fa-bell"></i></button>
+      <button class="header-btn" id="themeToggle"><i class="fas fa-moon"></i></button>
+      <button class="header-btn profile-btn">V</button>
+    </div>
+  </header>
+
+  <div class="main-container">
+    <div class="slider-container">
+      <button class="autoplay-btn" id="autoplayBtn"><i class="fas fa-play"></i></button>
+      <div class="slides-wrapper" id="slidesWrapper"></div>
+      <div class="progress-bar-custom" id="progressBar"></div>
+      <div class="action-buttons">
+        <button class="action-btn like-btn" id="likeBtn"><i class="far fa-heart"></i></button>
+        <button class="action-btn" id="shareBtn" data-bs-toggle="modal" data-bs-target="#shareModal"><i class="fas fa-share"></i></button>
+      </div>
+      <div class="nav-hint"><i class="fas fa-chevron-up"></i>Swipe up for next</div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header ">
+          <h5 class="modal-title" style="color:var(--accent-color);"><i class="fas fa-share me-2"></i>Share Quote</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Share Link:</label>
+            <div class="form-control share-link" id="shareLink"></div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-accent" id="copyBtn"><i class="fas fa-copy me-1"></i>Copy Link</button>
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/custom.js"></script>
+</body>
+</html>
